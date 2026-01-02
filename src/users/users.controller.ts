@@ -9,7 +9,9 @@ import {
   Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dtos/user.dto';
+import { CreateUserDto } from './dtos/user.dto';
+import { DeepPartial } from 'typeorm';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -29,13 +31,18 @@ export class UsersController {
     return this.userService.findOneProfile(id)
   }
 
+  @Get(':id/posts')
+  findUserPosts(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOnePosts(id)
+  }
+
   @Post()
   createUser(@Body() body: CreateUserDto) {
     return this.userService.createUser(body);
   }
 
   @Put(':id')
-  updateUser(@Body() body: UpdateUserDto, @Param('id', ParseIntPipe) id: number) {
+  updateUser(@Body() body: DeepPartial<User>, @Param('id', ParseIntPipe) id: number) {
     return this.userService.updateUser(body, id);
   }
 

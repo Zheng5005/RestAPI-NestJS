@@ -1,19 +1,7 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
-
-export class CreateProfileDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsString()
-  @IsNotEmpty()
-  lastName: string;
-
-  @IsString()
-  @IsOptional()
-  avatarURL: string;
-}
+import { IsEmail, IsNotEmpty, IsString, MinLength, ValidateNested } from 'class-validator';
+import { CreateProfileDto, UpdateProfileDto } from './profile.dto';
+import { PartialType } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @IsString()
@@ -31,13 +19,9 @@ export class CreateUserDto {
   profile: CreateProfileDto
 }
 
-export class UpdateUserDto {
-  @IsString()
-  @IsOptional()
-  @MinLength(8)
-  password: string;
-
-  @IsEmail({}, { message: 'Email is not valid' })
-  @IsOptional()
-  email: string;
+export class UpdateUserDto extends PartialType(CreateProfileDto) {
+  @ValidateNested()
+  @Type(() => UpdateProfileDto)
+  @IsNotEmpty()
+  profile: UpdateProfileDto
 }

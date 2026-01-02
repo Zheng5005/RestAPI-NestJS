@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, UpdateUserDto } from './dtos/user.dto';
+import { CreateUserDto } from './dtos/user.dto';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -30,6 +30,15 @@ export class UsersService {
     }
   }
 
+  async findOnePosts(id: number) {
+    try {
+      const user = await this.findUser(id)
+      return user.posts
+    } catch (error) {
+      throw new BadRequestException('Error getting profile')
+    }
+  }
+
   async createUser(body: CreateUserDto) {
     try {
       const newUser = await this.userRepository.save(body)
@@ -39,19 +48,25 @@ export class UsersService {
     }
   }
 
-  async updateUser(body: UpdateUserDto, id: number) {
-    const user = await this.findUser(id)
-
-    const updatedUser = this.userRepository.merge(user,body)
-
-    return this.userRepository.save(updatedUser);
+  async updateUser(body: DeepPartial<User>, id: number) {
+    try {
+      const user = await this.findUser(id)
+      const updatedUser = this.userRepository.merge(user,body)
+      const savedUser = await this.userRepository.save(updatedUser);
+      return savedUser
+    } catch (error) {
+      throw new BadRequestException('Error updating user')
+    }
   }
 
   async deleteUser(id: number) {
-    const user = await this.findUser(id)
-
-    await this.userRepository.delete(user.id)
-    return { message: 'User deleted' };
+    try {
+      const user = await this.findUser(id)
+      await this.userRepository.delete(user.id)
+      return { message: 'User deleted' };
+    } catch (error) {
+      throw new BadRequestException('Error deleting user')
+    }
   }
 
   private async findUser(id: number) {

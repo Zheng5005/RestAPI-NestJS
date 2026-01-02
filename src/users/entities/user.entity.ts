@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Profile } from "./profile.entity";
+import { Post } from "src/posts/entities/post.entity";
 
 @Entity({name: 'users'})
 export class User {
@@ -15,10 +16,13 @@ export class User {
   @CreateDateColumn({type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name:'created_at'})
   createdAt: Date
   
-  @CreateDateColumn({type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name:'updated_at'})
+  @UpdateDateColumn({type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP', name:'updated_at'})
   updatedAt: Date
 
   @OneToOne(() => Profile, {nullable: false, cascade: true, eager: true})
   @JoinColumn({name: 'profile_id'})
   profile: Profile
+
+  @OneToMany(() => Post, (post) => post.user, {eager: true})
+  posts: Post[]
 }
