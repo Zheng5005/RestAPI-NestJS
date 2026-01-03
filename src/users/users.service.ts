@@ -32,17 +32,22 @@ export class UsersService {
 
   async findOnePosts(id: number) {
     try {
-      const user = await this.findUser(id)
-      return user.posts
+      const user = await this.userRepository.findOne({
+        where: {id},
+        relations: ['posts']
+      })
+
+      return user?.posts
     } catch (error) {
-      throw new BadRequestException('Error getting profile')
+      throw new BadRequestException('Error getting posts')
     }
   }
 
   async createUser(body: CreateUserDto) {
     try {
-      const newUser = await this.userRepository.save(body)
-      return newUser;
+      const newUser = this.userRepository.create(body)
+      const createdUser = await this.userRepository.save(newUser)
+      return this.findUser(createdUser.id)
     } catch (error) {
       throw new BadRequestException('Error creating user')
     }
@@ -67,6 +72,13 @@ export class UsersService {
     } catch (error) {
       throw new BadRequestException('Error deleting user')
     }
+  }
+
+  async getUserByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: {email}
+    });
+    return user
   }
 
   private async findUser(id: number) {
