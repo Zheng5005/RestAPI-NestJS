@@ -12,11 +12,11 @@ export class PostsService {
     private postRepository: Repository<Post>,
   ) {}
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, userId: number) {
     try {
       const newPost = await this.postRepository.save({
         ...createPostDto,
-        user: { id: createPostDto.userId },
+        user: { id: userId },
         categories: createPostDto.categoryIds?.map((id) => ({id})),
       })
       return this.findOne(newPost.id);
